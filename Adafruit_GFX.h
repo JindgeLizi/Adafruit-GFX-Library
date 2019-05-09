@@ -47,16 +47,20 @@ class Adafruit_GFX : public Print {
     // Optional and probably not necessary to change
     drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color),
     drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+
   // These exist only with Adafruit_GFX (no subclass overrides)
   void
+    writePentagram(int16_t x0, int16_t y0, int16_t r0, uint16_t color),//画出任意大小和位置的五角星
+	writeEllipse(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t a, uint16_t color),//画出任意形状和位置的椭圆  
+
     drawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color),
     drawCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername,
       uint16_t color),
     fillCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color),
     fillCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername,
       int16_t delta, uint16_t color),
-	  drawPentagram(int16_t x0, int16_t y0, int16_t r0, uint16_t color),
-	 drawEllipse(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t a, uint16_t color),
+	  drawPentagram(int16_t x0, int16_t y0, int16_t r0, uint16_t color),  
+	drawEllipse(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t a, uint16_t color),
     drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
       int16_t x2, int16_t y2, uint16_t color),
     fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
@@ -210,4 +214,3 @@ class GFXcanvas16 : public Adafruit_GFX {
 };
 
 #endif // _ADAFRUIT_GFX_H
-

@@ -33,8 +33,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Adafruit_GFX.h"
 #include "glcdfont.c"
-#include <math.h>
-#define PI 3.1415926
 #ifdef __AVR__
   #include <avr/pgmspace.h>
 #elif defined(ESP8266) || defined(ESP32)
@@ -217,6 +215,76 @@ void Adafruit_GFX::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
     }
 }
 
+void Adafruit_GFX::writePentagram(int16_t x,int16_t y,int16_t r,uint16_t color){
+	startWrite();
+	int Xa,Ya;
+	int Xb,Yb;
+	int Xc,Yc;
+	int Xd,Yd;
+	int Xe,Ye;
+	int Xf,Yf;
+	int Xg,Yg;
+	int Xh,Yh;
+	int Xi,Yi;
+	int Xj,Yj;
+	float c18,s18,t36,c36,s36,c54,s54;
+	c18=cos(PI/180*18);
+	s18=sin(PI/180*18);
+	c54=cos(PI/180*54);
+	s54=sin(PI/180*54);
+	t36=tan(PI/180*36);
+	c36=cos(PI/180*36);
+	s36=sin(PI/180*36);
+	
+	Xa=x;
+	Ya=y-r;
+	Xb=x-r*c18;
+	Yb=y-r*s18;
+	Xc=x+r*c18;
+	Yc=y-r*s18;
+	Xd=x-r*c54;
+	Yd=y+r*s54;
+	Xe=x+r*c54;
+	Ye=y+r*s54;
+	Xf=x-r*s18*t36;
+	Yf=y-r*s18;
+	Xg=x+r*s18*t36;
+	Yg=y-r*s18;
+	Xh=x-r*s18*c18/c36;
+	Yh=y+r*s18*s18/c36;
+	Xi=x+r*s18*c18/c36;
+	Yi=y+r*s18*s18/c36;
+	Xj=x;
+	Yj=y+r*s18/c36;	
+	drawLine(Xa, Ya, Xf, Yf, color);
+	drawLine(Xf, Yf, Xb, Yb, color);
+	drawLine(Xb, Yb, Xh, Yh, color);
+	drawLine(Xh, Yh, Xd, Yd, color);
+	drawLine(Xd, Yd, Xj, Yj, color);
+	drawLine(Xj, Yj, Xe, Ye, color);
+	drawLine(Xe, Ye, Xi, Yi, color);
+	drawLine(Xi, Yi, Xc, Yc, color);
+	drawLine(Xc, Yc, Xg, Yg, color);
+	drawLine(Xg, Yg, Xa, Ya, color);
+	endWrite();
+}
+
+void Adafruit_GFX::writeEllipse(int16_t x1, int16_t y1, int16_t x2,int16_t y2,int16_t a,uint16_t color){
+	startWrite();
+    int16_t max_x = ((x1>x2 ? x1 : x2)+a > 128 ?(x1>x2 ? x1 : x2) + a : 128);
+    int16_t max_y = ((y1>y2 ? y1 : y2)+a > 64 ? (y1>y2 ? y1 : y2) + a : 64);
+    for (int16_t x =((x1>x2 ? x2 : x1)-a > 0 ?  (x1>x2 ? x2 : x1) - a : 0 );x<=max_x;x++){
+        for (int16_t y = ((y1>y2 ? y2 : y1)-a > 0 ?(y1>y2 ? y2 : y1)-a : 0);y<=max_y;y++){
+            int32_t distance = sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1))+ 
+			                   sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2));
+            if (distance-a == a) {
+                writePixel(x, y, color);
+            }
+        }
+    }
+    endWrite();
+}
+
 // Draw a circle outline
 void Adafruit_GFX::drawCircle(int16_t x0, int16_t y0, int16_t r,
         uint16_t color) {
@@ -288,6 +356,49 @@ void Adafruit_GFX::drawCircleHelper( int16_t x0, int16_t y0,
             writePixel(x0 - x, y0 - y, color);
         }
     }
+}
+
+// Draw a Pentagram
+void Adafruit_GFX::drawPentagram(int16_t x0, int16_t y0,
+        int16_t r0, uint16_t color) {
+	startWrite();
+	int xa, ya;
+    int xb, yb;
+    int xc, yc;
+    int xd, yd;
+    int xe, ye;
+    xa = x0;
+    ya = y0 - r0;
+    xb = x0 - r0 * sin(PI / 180 * 72);
+    yb = y0 + r0 * -(cos(PI / 180 * 72));
+    xc = x0 - r0 * -(sin(PI / 180 * 36));
+    yc = y0 - r0 * -(cos(PI / 180 * 36));
+    xd = x0 + r0 * -(sin(PI / 180 * 36));
+    yd = y0 - r0 * -(cos(PI / 180 * 36));
+    xe = x0 + r0 * sin(PI / 180 * 72);
+    ye = y0 + r0 * -(cos(PI / 180 * 72));
+    drawLine(xa, ya, xc, yc, color);
+    drawLine(xa, ya, xd, yd, color);
+    drawLine(xb, yb, xc, yc, color);
+	drawLine(xb, yb, xe, ye, color);
+	drawLine(xd, yd, xe, ye, color);
+	endWrite();
+}
+
+// Draw a ellipse
+void Adafruit_GFX::drawEllipse(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t a, uint16_t color) {
+	startWrite();
+    int16_t max_x = ((x1 > x2 ? x1 : x2) + a > 128 ? (x1 > x2 ? x1 : x2) + a : 128);
+    int16_t max_y = ((y1 > y2 ? y1 : y2) + a > 64 ? (y1 > y2 ? y1 : y2) + a : 64);
+    for (int16_t x = ((x1 > x2 ? x2 : x1) - a > 0 ? (x1 > x2 ? x2 : x1) - a : 0 ); x <= max_x; x++) {
+        for (int16_t y = ((y1 > y2 ? y2 : y1) - a > 0 ? (y1 > y2 ? y2 : y1) - a : 0); y <= max_y; y++) {
+            int32_t distance = sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1)) + sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2));
+            if (distance-a == a) {
+                writePixel(x, y, color);
+            }
+        }
+    }
+    endWrite();
 }
 
 void Adafruit_GFX::fillCircle(int16_t x0, int16_t y0, int16_t r,
@@ -369,47 +480,6 @@ void Adafruit_GFX::fillRoundRect(int16_t x, int16_t y, int16_t w,
     fillCircleHelper(x+r    , y+r, r, 2, h-2*r-1, color);
     endWrite();
 }
-
-// Draw a Pentagram
-void Adafruit_GFX::drawPentagram(int16_t x0, int16_t y0,
-        int16_t r0, uint16_t color) {
-	int xa, ya;
-    int xb, yb;
-    int xc, yc;
-    int xd, yd;
-    int xe, ye;
-    xa = x0;
-    ya = y0 - r0;
-    xb = x0 - r0 * sin(PI / 180 * 72);
-    yb = y0 + r0 * -(cos(PI / 180 * 72));
-    xc = x0 - r0 * -(sin(PI / 180 * 36));
-    yc = y0 - r0 * -(cos(PI / 180 * 36));
-    xd = x0 + r0 * -(sin(PI / 180 * 36));
-    yd = y0 - r0 * -(cos(PI / 180 * 36));
-    xe = x0 + r0 * sin(PI / 180 * 72);
-    ye = y0 + r0 * -(cos(PI / 180 * 72));
-    drawLine(xa, ya, xc, yc, color);
-    drawLine(xa, ya, xd, yd, color);
-    drawLine(xb, yb, xc, yc, color);
-	drawLine(xb, yb, xe, ye, color);
-	drawLine(xd, yd, xe, ye, color);
-}
-
-// Draw a ellipse outline
-void Adafruit_GFX::drawEllipse(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t a, uint16_t color) {
-    int16_t max_x = ((x1 > x2 ? x1 : x2) + a > 128 ? (x1 > x2 ? x1 : x2) + a : 128);
-    int16_t max_y = ((y1 > y2 ? y1 : y2) + a > 64 ? (y1 > y2 ? y1 : y2) + a : 64);
-    for (int16_t x = ((x1 > x2 ? x2 : x1) - a > 0 ? (x1 > x2 ? x2 : x1) - a : 0 ); x <= max_x; x++) {
-        for (int16_t y = ((y1 > y2 ? y2 : y1) - a > 0 ? (y1 > y2 ? y2 : y1) - a : 0); y <= max_y; y++) {
-            int32_t distance = sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1)) + sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2));
-            if (distance-a == a) {
-                writePixel(x, y, color);
-            }
-        }
-    }
-    endWrite();
-}
-
 
 // Draw a triangle
 void Adafruit_GFX::drawTriangle(int16_t x0, int16_t y0,
@@ -1388,5 +1458,4 @@ void GFXcanvas16::fillScreen(uint16_t color) {
         }
     }
 }
-
 
